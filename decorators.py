@@ -1,0 +1,32 @@
+# decorators.py
+
+from flask import jsonify, request
+import jwt
+from functools import wraps
+from datetime import datetime, timedelta
+from flask import current_app as app
+
+# Function to verify the JWT token
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        try:
+            # Check if the 'Authorization' header is present
+            token = request.headers.get('Authorization')
+            if not token:
+                return jsonify({'error': 'Authorization header is missing'}), 401
+
+            # Assuming the token is included in the 'Authorization' header
+            token_parts = token.split(" ")
+            if len(token_parts) != 2 or token_parts[0].lower() != 'bearer':
+                return jsonify({'error': 'Invalid token format'}), 401
+
+            token = token_parts[1]
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            return f(data, *args, **kwargs)
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token has expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Invalid token'}), 401
+
+    return decorated

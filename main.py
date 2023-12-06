@@ -3,7 +3,8 @@ from flask_pymongo import PyMongo
 from bson import ObjectId, json_util
 import jwt
 from datetime import datetime, timedelta
-
+from functools import wraps
+from decorators import token_required  # Import the decorator from the decorators file
 
 app = Flask(__name__)
 
@@ -55,7 +56,8 @@ def check_connection():
 
 # Route to retrieve all books from the "books" collection
 @app.route('/books', methods=['GET'])
-def get_all_books():
+@token_required
+def get_all_books(data):
     try:
         collection = mongo.db["books"]
         # Access the collection to retrieve all books
@@ -68,7 +70,8 @@ def get_all_books():
 
 # Route to retrieve all books from the "books" collection
 @app.route('/books/<book_id>', methods=['GET'])
-def get_one_books(book_id):
+@token_required
+def get_one_books(data, book_id):
     try:
         collection = mongo.db["books"]
         # Convert the provided book_id string to ObjectId
@@ -87,7 +90,8 @@ def get_one_books(book_id):
 
 # Route to retrieve all books from the "books" collection
 @app.route('/books', methods=['POST'])
-def craete_book():
+@token_required
+def craete_book(data):
     try:
         request_book = request.get_json()
         collection = mongo.db["books"]
@@ -106,7 +110,8 @@ def craete_book():
 
 # Sample route to update a book by its ID
 @app.route('/books/<book_id>', methods=['PATCH'])
-def update_book(book_id):
+@token_required
+def update_book(data, book_id):
     try:
         # Access the "books" collection
         collection = mongo.db.books
@@ -135,7 +140,8 @@ def update_book(book_id):
 
 # Sample route to delete a book by its ID
 @app.route('/books/<book_id>', methods=['DELETE'])
-def delete_book(book_id):
+@token_required
+def delete_book(data, book_id):
     try:
         # Access the "books" collection
         collection = mongo.db.books
@@ -158,14 +164,6 @@ def delete_book(book_id):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-# Sample route to retrieve data from MongoDB
-@app.route('/get_users', methods=['GET'])
-def get_users():
-    # Replace 'your_collection_name' with the actual name of your collection
-    data = mongo.db.users.find()
-    result = json_util.dumps(list(data))
-    return jsonify(result)
 
 if __name__ == '__main__':
     app.run(debug=True)
