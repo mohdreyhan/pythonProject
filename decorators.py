@@ -5,6 +5,7 @@ import jwt
 from functools import wraps
 from datetime import datetime, timedelta
 from flask import current_app as app
+import inspect  # Import the 'inspect' module
 
 # Function to verify the JWT token
 def token_required(f):
