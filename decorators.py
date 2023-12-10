@@ -2,14 +2,13 @@
 
 from flask import jsonify, request
 import jwt
-from functools import wraps
+from functools import wraps, _getfullargspec
 from datetime import datetime, timedelta
 from flask import current_app as app
-import inspect  # Import the 'inspect' module
 
 # Function to verify the JWT token
 def token_required(f):
-    @wraps(f)
+    @wraps(f, assigned=('__module__', '__name__', '__qualname__', '__doc__', '__annotations__'))
     def decorated(*args, **kwargs):
         try:
             # Check if the 'Authorization' header is present
