@@ -66,6 +66,8 @@ def get_all_books(data):
         all_books = list(collection.find())
         # Convert ObjectId to string for JSON serialization
         result = json_util.dumps(all_books)
+        # for book in all_books:
+        #     book['_id'] = str(book['_id'])
         return jsonify({'result': result})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -84,7 +86,7 @@ def get_one_books(data, book_id):
         if book:
             # Convert ObjectId to string for JSON serialization
             result = json_util.dumps(book)
-            return jsonify({'result': result})
+            return jsonify({'message': "Book found", 'result': result})
         else:
             return jsonify({'message': 'Book not found'}), 404
     except Exception as e:
