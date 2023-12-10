@@ -9,7 +9,7 @@ from flask import current_app as app
 
 # Function to verify the JWT token
 def token_required(f):
-    @wraps(f, assigned=('__module__', '__name__', '__qualname__', '__doc__', '__annotations__'), updated=())
+    @wraps(f, assigned=('__module__', '__name__', '__qualname__', '__doc__', '__annotations__'))
     def decorated(*args, **kwargs):
         try:
             # Check if the 'Authorization' header is present

@@ -3,7 +3,6 @@ from flask_pymongo import PyMongo
 from bson import ObjectId, json_util
 import jwt
 from datetime import datetime, timedelta
-from functools import wraps
 from decorators import token_required  # Import the decorator from the decorators file
 
 app = Flask(__name__)
