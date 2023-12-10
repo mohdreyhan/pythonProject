@@ -34,7 +34,10 @@ def login():
                     'exp': datetime.utcnow() + timedelta(minutes=30)
                 }, app.config['SECRET_KEY'], algorithm='HS256')  # Specify the algorithm
 
-                return jsonify({'token': token.decode('UTF-8')})  # Decode the token to a string
+                if not isinstance(token, bytes):
+                    return jsonify({'token': token})  # No need to decode, assuming token is already a string
+       
+                return jsonify({'token': token.decode('UTF-8')}) 
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
         else:
