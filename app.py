@@ -5,15 +5,16 @@ import jwt
 from datetime import datetime, timedelta
 from decorators import token_required  # Import the decorator from the decorators file
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
 
 app = Flask(__name__)
 
 # Replace 'your_secret_key' with a secret key for JWT
-app.config['SECRET_KEY'] = 'abcd123xyz'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 # Replace the following with your MongoDB connection string
-app.config['MONGO_URI'] = 'mongodb+srv://reyhanrab:NeedforSpeed@cluster0.ufcfhbz.mongodb.net/ebookshop'
+app.config['MONGO_URI'] = os.getenv('MONGO_URI')
 mongo = PyMongo(app)
 
 # Signup route to create a new user
