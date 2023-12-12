@@ -106,7 +106,7 @@ def get_all_books(data):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Route to retrieve all books from the "books" collection
+# Route to update a book from the "books" collection
 @app.route('/books/<book_id>', methods=['GET'])
 @token_required
 def get_one_books(data, book_id):
@@ -119,14 +119,14 @@ def get_one_books(data, book_id):
         # Check if the book exists
         if book:
             # Convert ObjectId to string for JSON serialization
-            result = json_util.dumps(book)
-            return jsonify({'message': "Book found", 'result': result})
+            book['_id'] = str(book['_id'])
+            return jsonify({'message': "Book found", 'result': book})
         else:
             return jsonify({'message': 'Book not found'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Route to retrieve all books from the "books" collection
+# Route to create a book in the "books" collection
 @app.route('/books', methods=['POST'])
 @token_required
 def craete_book(data):
@@ -147,7 +147,7 @@ def craete_book(data):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Sample route to update a book by its ID
+# Route to update a book by its ID
 @app.route('/books/<book_id>', methods=['PATCH'])
 @token_required
 def update_book(data, book_id):
@@ -177,7 +177,7 @@ def update_book(data, book_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Sample route to delete a book by its ID
+# Route to delete a book by its ID
 @app.route('/books/<book_id>', methods=['DELETE'])
 @token_required
 def delete_book(data, book_id):
