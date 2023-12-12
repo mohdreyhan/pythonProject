@@ -4,15 +4,49 @@ from bson import ObjectId, json_util
 import jwt
 from datetime import datetime, timedelta
 from decorators import token_required  # Import the decorator from the decorators file
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 app = Flask(__name__)
 
 # Replace 'your_secret_key' with a secret key for JWT
-app.config['SECRET_KEY'] = 'your secret key'
+app.config['SECRET_KEY'] = 'abcd123xyz'
 
 # Replace the following with your MongoDB connection string
 app.config['MONGO_URI'] = 'mongodb+srv://reyhanrab:NeedforSpeed@cluster0.ufcfhbz.mongodb.net/ebookshop'
 mongo = PyMongo(app)
+
+# Signup route to create a new user
+@app.route('/signup', methods=['POST'])
+def signup():
+    try:
+        request_body = request.get_json()
+
+        collection = mongo.db["users"]
+
+        # Check if the email is already registered
+        existing_user = collection.find_one({'email': request_body.get('email')})
+        if existing_user:
+            return jsonify({'error': 'Email already registered'}), 400
+
+        # Hash the password before storing it
+        hashed_password = generate_password_hash(request_body.get('password'), method='pbkdf2:sha256')
+
+        request_body["password"] = hashed_password
+
+        # Insert the new user into the collection
+
+        new_user = collection.insert_one(request_body)
+
+        # Extract the relevant information for response
+        response_data = {
+            'message': "Sign Up Successful",
+            'user_id': str(new_user.inserted_id)
+        }
+        return jsonify(response_data)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Login route to generate JWT token
 @app.route('/login', methods=['POST'])
@@ -26,7 +60,7 @@ def login():
         user = collection.find_one({'email': request_body.get('email')})
 
         # Check if the user exists and the password is correct
-        if user and user['password'] == request_body.get('password'):
+        if user and check_password_hash(user['password'], request_body.get('password')):
             try:
                 # Create JWT token
                 token = jwt.encode({
@@ -65,10 +99,9 @@ def get_all_books(data):
         # Access the collection to retrieve all books
         all_books = list(collection.find())
         # Convert ObjectId to string for JSON serialization
-        result = json_util.dumps(all_books)
-        # for book in all_books:
-        #     book['_id'] = str(book['_id'])
-        return jsonify({'result': result})
+        for book in all_books:
+            book['_id'] = str(book['_id'])
+        return jsonify({'result': all_books})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -99,6 +132,7 @@ def craete_book(data):
     try:
         request_book = request.get_json()
         collection = mongo.db["books"]
+        print(collection)
         # Insert the new record into the collection and retrieve the inserted document
         result = collection.insert_one(request_book)
         inserted_id = result.inserted_id

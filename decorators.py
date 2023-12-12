@@ -17,12 +17,6 @@ def token_required(f):
             if not token:
                 return jsonify({'error': 'Authorization header is missing'}), 401
 
-            # Assuming the token is included in the 'Authorization' header
-            token_parts = token.split(" ")
-            if len(token_parts) != 2 or token_parts[0].lower() != 'bearer':
-                return jsonify({'error': 'Invalid token format'}), 401
-
-            token = token_parts[1]
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
             return f(data, *args, **kwargs)
         except jwt.ExpiredSignatureError:
